@@ -1,7 +1,15 @@
 # Module 01 - System Access and File System
 
 #   1.  Change your password
-
+<pre>
+     manoj@My-Linux:~$ passwd manoj
+     Changing password for manoj.
+     Current password: 
+     New password: 
+     Retype new password: 
+     passwd: password updated successfully
+     manoj@My-Linux:~$ 
+     </pre>
     2. Create 10 files under your home directory (File names = jerry, kramer, george, lex, clark, lois, homer, bart, lisa, and marge)
 
    3.  Create 3 directories under your home directory (Dir name = seinfeld, superman and simpsons)  
