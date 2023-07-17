@@ -5,9 +5,9 @@ Change Any Users Password
 
 Login as the root user and type the command:
 
-# passwd userName
+**passwd userName**
 
-Sample outputs:
+**Sample outputs:**
 
 Enter new LINUX password:
 
@@ -21,7 +21,7 @@ Simply type the passwd command:
 
 **$ passwd**
 
-Sample outputs:
+**Sample outputs:**
 
 (current) LINUX password:
 
