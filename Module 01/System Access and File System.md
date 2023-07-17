@@ -1,6 +1,24 @@
 # Module 01 - System Access and File System
 
 #   1.  Change your password
+Change Any Users Password
+
+Login as the root user and type the command:
+# passwd userName
+
+Sample outputs:
+Enter new LINUX password:
+Retype new LINUX password:
+passwd: password updated successfully
+Change Your Own Password
+Simply type the passwd command:
+$ passwd
+
+Sample outputs:
+(current) LINUX password:
+Enter new LINUX password:
+Retype new LINUX password:
+passwd: password updated successfully
 <pre>
      manoj@My-Linux:~$ passwd manoj
      Changing password for manoj.
