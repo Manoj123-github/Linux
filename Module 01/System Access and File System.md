@@ -5,7 +5,7 @@ Change Any Users Password
 
 Login as the root user and type the command:
 
-**passwd userName**
+**--> $ passwd userName**
 
 **Sample outputs:**
 
@@ -19,7 +19,7 @@ Change Your Own Password
 
 Simply type the passwd command:
 
-**$ passwd**
+**--> $ passwd**
 
 **Sample outputs:**
 
