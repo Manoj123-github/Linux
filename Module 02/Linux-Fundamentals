@@ -1,1 +1,32 @@
-Module
+#Module 02 - Practice set
+#  List files in your home directory by the last time they were modified
+
+ <pre>
+     manoj@My-Linux:~/module01$ ls -alt
+     total 24
+     drwxrwxr-x  5 manoj manoj 4096 Jul 18 00:42 .
+     lrwxrwxrwx  1 manoj manoj    7 Jul 18 00:42 text.txt -> jupiter
+     -rw-rw-r--  2 manoj manoj   20 Jul 18 00:41 jupiter
+     drwxrwxr-x  2 manoj manoj 4096 Jul 18 00:37 seinfeld
+     drwxrwxr-x  2 manoj manoj 4096 Jul 18 00:37 simpsons
+     drwxrwxr-x  2 manoj manoj 4096 Jul 18 00:37 superman
+     drwxr-x--- 39 manoj manoj 4096 Jul 18 00:28 ..
+     manoj@My-Linux:~/module01$ 
+
+</pre>
+
+
+# Move jerry, george, kramer and puddy files into seinfeld directory
+
+  <pre>
+      manoj@My-Linux:~/module01$ mv  jerry lois /home/manoj/module01/simpsons/
+      manoj@My-Linux:~/module01/simpsons$ ls
+     jerry  lois
+     manoj@My-Linux:~/module01/simpsons$ 
+
+
+  </pre>
+
+   
+
+   
