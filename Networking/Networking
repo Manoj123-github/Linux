@@ -2,7 +2,7 @@ Setting up IP configuration in Linux can be done using several methods, dependin
 
 ---
 
-** Method 1: Using `nmcli` (NetworkManager Command Line) **
+# Method 1: Using `nmcli` (NetworkManager Command Line)
 NetworkManager is commonly used in modern Linux distributions (Ubuntu, Fedora, CentOS, etc.).
 
 **Set a Static IP**
