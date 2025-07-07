@@ -1,0 +1,129 @@
+  -----------Stratis Overview-----------
+  
+  **Stratis** is a local storage management solution introduced in **RHEL 8**. It helps manage local disks or partitions and provides advanced storage features:
+  
+  1. **Thin Provisioning**: Allocate disk space dynamically.
+  2. **File System Snapshots**: Create point-in-time backups of your file system.
+  3. **Pool-based Management**: Group multiple storage devices into pools for better management.
+  4. **Monitoring**: Provides tools to monitor storage health and performance.
+  
+  Stratis integrates with **Stratis CLI** (command-line tool) and **Stratis Daemon** (service that manages disks, pools, and file systems).
+  
+  -----------Steps to Create and Manage Stratis-----------
+  
+  **1. Install Stratis Utilities:**
+  
+  Install the Stratis tools (`stratisd` and `stratis-cli`):
+
+  dnf install stratisd stratis-cli
+  
+  Check if the tools are installed correctly:
+  
+  rpm -qi stratisd stratis-cli
+  
+  2. Enable and Start the Stratis Daemon:
+  
+  Enable and start the Stratis service (daemon):
+  
+  systemctl enable --now stratisd
+  
+  Check the status of the Stratis daemon to confirm it’s running:
+  
+  systemctl status stratisd
+  
+  3. Prepare the Disk:
+  
+  To use a disk with Stratis, first ensure it's clean. Check if the disk is clean:
+  
+  blkid /dev/<block-device-name>
+  
+  If the disk contains any data, wipe it:
+  
+  wipefs -a /dev/<block-device-name>
+  
+  4. Create a Stratis Storage Pool:
+  
+  Create a pool from one or more disks (e.g., /dev/sda):
+  
+  stratis pool create <pool-name> /dev/<block-device-name>
+  
+  Verify the creation of the pool:
+  
+  stratis pool list
+  
+  5. Create a File System (FS):
+  
+  After creating a pool, create a file system (FS) on it:
+  
+  stratis fs create <pool-name> <fs-name>
+  
+  List all Stratis file systems:
+  
+  stratis fs list
+  
+  6. Mount the Stratis File System:
+  
+  To use the file system, mount it like a regular file system:
+  
+  mount /dev/stratis/<pool-name>/<fs-name> <mount-point>
+  
+  -----------Steps to Extend a Pool-----------
+  
+  1. Unmount the File System:
+  
+  Before adding more disks to the pool, unmount the file system:
+  
+  umount /dev/stratis/<pool-name>/<fs-name>
+  
+  2. Add a New Disk to the Pool:
+  
+  To extend the pool, add another disk:
+  
+  stratis pool add-data <pool-name> /dev/<new-disk-name>
+  
+  -----------Other Stratis Management Commands-----------
+  
+      Destroy a File System:
+  
+  stratis fs destroy <pool-name> <fs-name>
+  
+  Destroy a Stratis Pool:
+  
+  stratis pool destroy <pool-name>
+  
+  Rename a File System:
+  
+  stratis fs rename <pool-name> <old-fs-name> <new-fs-name>
+  
+  Rename a Stratis Pool:
+  
+  stratis pool rename <old-pool-name> <new-pool-name>
+  
+  -----------Working with Snapshots in Stratis-----------
+  
+  1. Take a Snapshot of a Stratis File System:
+  
+  Create a snapshot of the file system for backup or testing:
+  
+  stratis fs snapshot <pool-name> <fs-name> <snap-name>
+  
+  2. Revert to a Snapshot if the File System is Corrupted:
+  
+  If your file system becomes corrupted, you can revert to a snapshot:
+  
+      Unmount the File System:
+  
+  umount /dev/stratis/<pool-name>/<fs-name>
+  
+  Destroy the Corrupted File System:
+  
+  stratis fs destroy <pool-name> <fs-name>
+  
+  Restore the File System from Snapshot:
+  
+  stratis fs snapshot <pool-name> <snap-name> <new-fs-name>
+  
+  Mount the Restored File System:
+  
+  mount /dev/stratis/<pool-name>/<new-fs-name> <mount-point>
+  
