@@ -1,1 +1,159 @@
+Setting up IP configuration in Linux can be done using several methods, depending on whether you want a **static IP** or **dynamic IP (DHCP)**. Below are the common ways to configure IP settings:
 
+---
+
+## **Method 1: Using `nmcli` (NetworkManager Command Line)**
+NetworkManager is commonly used in modern Linux distributions (Ubuntu, Fedora, CentOS, etc.).
+
+### **Set a Static IP**
+```bash
+nmcli con modify "YourConnectionName" ipv4.addresses "192.168.1.100/24"
+nmcli con modify "YourConnectionName" ipv4.gateway "192.168.1.1"
+nmcli con modify "YourConnectionName" ipv4.dns "8.8.8.8,8.8.4.4"
+nmcli con modify "YourConnectionName" ipv4.method manual
+nmcli con up "YourConnectionName"
+```
+
+### **Set DHCP (Automatic IP)**
+```bash
+nmcli con modify "YourConnectionName" ipv4.method auto
+nmcli con down "YourConnectionName" && nmcli con up "YourConnectionName"
+```
+
+### **Find Your Connection Name**
+```bash
+nmcli con show
+```
+
+---
+
+## **Method 2: Using `nmtui` (Text-based UI)**
+If you prefer a text-based GUI:
+```bash
+sudo nmtui
+```
+- Select **"Edit a connection"** → Choose your network interface.
+- Configure **IPv4** (Manual/Auto) and enter IP, Gateway, DNS.
+- Press **OK** → **Activate**.
+
+---
+
+## **Method 3: Using `ifconfig` (Deprecated, use `ip` instead)**
+The `ifconfig` command is outdated but still used in some older systems.
+
+### **Temporarily Assign an IP**
+```bash
+sudo ip addr add 192.168.1.100/24 dev eth0
+sudo ip route add default via 192.168.1.1
+```
+
+### **Restart Networking**
+```bash
+sudo systemctl restart networking  # (Debian/Ubuntu)
+sudo systemctl restart NetworkManager  # (RHEL/CentOS/Fedora)
+```
+
+---
+
+## **Method 4: Editing Network Config Files**
+### **Debian/Ubuntu (`/etc/network/interfaces`)**
+```bash
+sudo nano /etc/network/interfaces
+```
+#### **Static IP Example**
+```bash
+auto eth0
+iface eth0 inet static
+    address 192.168.1.100
+    netmask 255.255.255.0
+    gateway 192.168.1.1
+    dns-nameservers 8.8.8.8 8.8.4.4
+```
+#### **DHCP Example**
+```bash
+auto eth0
+iface eth0 inet dhcp
+```
+Apply changes:
+```bash
+sudo systemctl restart networking
+```
+
+### **RHEL/CentOS/Fedora (`/etc/sysconfig/network-scripts/ifcfg-eth0`)**
+```bash
+sudo nano /etc/sysconfig/network-scripts/ifcfg-eth0
+```
+#### **Static IP Example**
+```bash
+DEVICE=eth0
+BOOTPROTO=static
+IPADDR=192.168.1.100
+NETMASK=255.255.255.0
+GATEWAY=192.168.1.1
+DNS1=8.8.8.8
+DNS2=8.8.4.4
+ONBOOT=yes
+```
+#### **DHCP Example**
+```bash
+DEVICE=eth0
+BOOTPROTO=dhcp
+ONBOOT=yes
+```
+Apply changes:
+```bash
+sudo systemctl restart network
+```
+
+---
+
+## **Method 5: Using `netplan` (Ubuntu 18.04+)**
+Edit the Netplan config:
+```bash
+sudo nano /etc/netplan/01-netcfg.yaml
+```
+#### **Static IP Example**
+```yaml
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eth0:
+      dhcp4: no
+      addresses: [192.168.1.100/24]
+      gateway4: 192.168.1.1
+      nameservers:
+        addresses: [8.8.8.8, 8.8.4.4]
+```
+#### **DHCP Example**
+```yaml
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eth0:
+      dhcp4: yes
+```
+Apply changes:
+```bash
+sudo netplan apply
+```
+
+---
+
+## **Verify IP Configuration**
+```bash
+ip addr show
+ip route
+ping google.com -c 3
+```
+
+---
+
+### **Summary**
+- **For GUI/Interactive:** `nmtui`  
+- **For Command Line:** `nmcli` or `ip`  
+- **For Config Files:** Edit `/etc/network/interfaces` (Debian) or `/etc/sysconfig/network-scripts/ifcfg-eth0` (RHEL)  
+- **For Ubuntu 18.04+:** Use `netplan`  
+
+Let me know if you need help with a specific distribution! 🚀
