@@ -1,0 +1,179 @@
+
+# 🛡️ **UFW Firewall Management Guide**
+
+---
+
+## 1. What is UFW?
+
+* A user-friendly frontend for **iptables**.
+* Simplifies firewall management on Ubuntu and Debian systems.
+* Designed for ease of use without deep iptables knowledge.
+
+---
+
+## 2. Enable / Disable Firewall
+
+### Enable UFW
+
+
+sudo ufw enable
+
+
+* Enables firewall with default rules (usually deny incoming, allow outgoing).
+
+### Disable UFW
+
+
+sudo ufw disable
+
+
+* Stops the firewall.
+
+### Check UFW status and rules
+
+
+sudo ufw status verbose
+
+
+---
+
+## 3. Adding Firewall Rules
+
+### Allow traffic on a port (e.g., SSH on port 22)
+
+
+sudo ufw allow 22/tcp
+
+
+### Allow HTTP (port 80)
+
+
+sudo ufw allow 80/tcp
+
+
+### Allow HTTPS (port 443)
+
+
+sudo ufw allow 443/tcp
+
+
+### Allow a service by name (predefined in `/etc/services`)
+
+
+sudo ufw allow OpenSSH
+sudo ufw allow 'Apache Full'  # HTTP + HTTPS
+
+
+### Allow traffic from a specific IP
+
+
+sudo ufw allow from 192.168.1.10
+
+
+### Allow traffic from a subnet to a specific port
+
+
+sudo ufw allow from 192.168.1.0/24 to any port 22 proto tcp
+
+
+---
+
+## 4. Removing Firewall Rules
+
+* To remove a rule, use the exact rule syntax with `delete`.
+
+### Example: Remove rule allowing SSH
+
+
+sudo ufw delete allow 22/tcp
+
+
+### Remove rule by service
+
+```bash
+sudo ufw delete allow OpenSSH
+```
+
+---
+
+## 5. Setting Default Policies
+
+### Default deny incoming, allow outgoing (recommended)
+
+
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+
+
+---
+
+## 6. Port Forwarding with UFW
+
+UFW can forward ports using **`before.rules`** configuration file.
+
+### Example: Forward port 80 to 8080
+
+1. Edit `/etc/ufw/before.rules` with sudo:
+
+
+sudo nano /etc/ufw/before.rules
+
+
+2. Add the following at the top (before the `*filter` section):
+
+*nat
+:PREROUTING ACCEPT [0:0]
+-A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
+COMMIT
+
+
+3. Enable IP forwarding:
+
+sudo sysctl -w net.ipv4.ip_forward=1
+
+4. Reload UFW:
+
+```bash
+sudo ufw reload
+```
+
+---
+
+## 7. Enable Logging
+
+
+sudo ufw logging on
+
+---
+
+## 8. Check Rules and Status
+
+sudo ufw status numbered
+
+
+---
+
+## 9. Reset UFW (removes all rules and resets to default)
+
+sudo ufw reset
+
+
+---
+
+# Summary Table
+
+| Task                 | UFW Command                                         |
+| -------------------- | --------------------------------------------------- |
+| Enable Firewall      | `sudo ufw enable`                                   |
+| Disable Firewall     | `sudo ufw disable`                                  |
+| Check Status         | `sudo ufw status verbose`                           |
+| Allow Port           | `sudo ufw allow 22/tcp`                             |
+| Deny Port            | `sudo ufw deny 23`                                  |
+| Allow IP             | `sudo ufw allow from 192.168.1.10`                  |
+| Remove Rule          | `sudo ufw delete allow 22/tcp`                      |
+| Set Default Policies | `sudo ufw default deny incoming`                    |
+| Port Forwarding      | Edit `/etc/ufw/before.rules` + enable IP forwarding |
+
+---
+
+Let me know if you want me to help write custom rules or automate UFW configuration!

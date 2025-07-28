@@ -1,0 +1,277 @@
+1. What is firewalld?
+A dynamic firewall manager for Linux (RHEL, CentOS, Fedora).
+Uses zones to group network interfaces by trust level.
+Supports runtime and permanent configurations.
+Manages iptables or nftables backend rules.
+Easier than raw iptables for most admins.
+
+2. Firewalld Basic Concepts
+ll /usr/lib/firewalld/  (this dir has all script file of firewall).
+
+drwxr-xr-x. 2 root root  224 Apr  5 19:42 helpers
+drwxr-xr-x. 2 root root 4096 Apr  5 19:42 icmptypes
+drwxr-xr-x. 2 root root   20 Apr  5 19:42 ipsets
+drwxr-xr-x. 2 root root 8192 Apr  5 19:42 services
+drwxr-xr-x. 2 root root  203 Apr  5 19:42 zones
+
+| Term       | Explanation                                                |
+| ---------- | ---------------------------------------------------------- |
+| Zone       | Trust level for a network interface (e.g., public, home)   |
+| Service    | Predefined app/service rule sets (e.g., ssh, http)         |
+| Runtime    | Temporary rules active until next reload/reboot            |
+| Permanent  | Rules saved persistently across reboots                    |
+| Rich Rules | Complex/custom firewall rules beyond simple ports/services |
+
+
+3. Checking Firewall Status & Zones
+Check if firewalld is running
+
+	 sudo firewall-cmd --state
+    	# Output: running / not running
+
+Get all available zones
+
+	sudo firewall-cmd --get-zones
+
+Check active zones and interfaces
+
+	sudo firewall-cmd --get-active-zones
+
+Show default zone
+
+	sudo firewall-cmd --get-default-zone
+
+
+4. Basic Firewall Rule Management
+Show all active rules in a zone
+
+	sudo firewall-cmd --zone=public --list-all
+
+Adding Rules
+Add a service (like ssh, http) to a zone (runtime)
+
+	sudo firewall-cmd --zone=public --add-service=ssh
+
+Add a port to a zone (runtime)
+
+	sudo firewall-cmd --zone=public --add-port=8080/tcp
+
+Make these changes permanent
+
+	sudo firewall-cmd --zone=public --add-service=ssh --permanent
+	sudo firewall-cmd --zone=public --add-port=8080/tcp --permanent
+
+
+
+Reload firewall to apply permanent changes to runtime
+
+	sudo firewall-cmd --reload
+
+
+Removing Rules
+Remove a service (runtime)
+
+	sudo firewall-cmd --zone=public --remove-service=ssh
+
+Remove a port (runtime)
+
+	sudo firewall-cmd --zone=public --remove-port=8080/tcp
+
+Remove permanently and reload
+
+	sudo firewall-cmd --zone=public --remove-service=ssh --permanent
+	sudo firewall-cmd --reload
+
+
+
+5. Port Forwarding
+Allows forwarding network traffic from one port to another port or different machine.
+
+
+Add a port forwarding rule (permanent)
+
+	sudo firewall-cmd --zone=public --add-forward-port=port=22:proto=tcp:toport=5000 --permanent
+	sudo firewall-cmd --reload
+
+     - This forwards incoming TCP traffic on port 22 to port 5000 on the local machine.
+
+Forward to a different IP address and port
+
+	sudo firewall-cmd --zone=public --add-forward-port=port=9090:proto=tcp:toport=9090:toaddr=192.168.1.100 --permanent
+	sudo firewall-cmd --reload
+
+6. Masquerading (NAT)
+Used for allowing machines in a private network to access the internet via your Linux machine’s public IP.
+
+Check if masquerading is enabled
+
+	sudo firewall-cmd --query-masquerade
+
+Enable masquerading (permanent)
+
+	sudo firewall-cmd --zone=public --add-masquerade --permanent
+	sudo firewall-cmd --reload
+
+Disable masquerading (permanent)
+
+	sudo firewall-cmd --zone=public --remove-masquerade --permanent
+	sudo firewall-cmd --reload
+
+
+
+	
+7. Rich Rules
+For advanced, customized firewall rules that are not covered by simple port/service commands.
+
+Example Rich Rule Syntax
+
+	rule [family="ipv4|ipv6"] source address="IP_OR_SUBNET" [port port=PORT protocol=tcp|udp] [accept|reject|drop]
+
+
+
+Add a rich rule (allow SSH from specific IP)
+
+	sudo firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="192.168.1.10" port port=22 protocol=tcp accept' --permanent
+	sudo firewall-cmd --reload
+
+
+Add a rich rule (reject SSH from specific IP)
+
+	sudo firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="192.168.1.20" port port=22 protocol=tcp reject' --permanent
+	sudo firewall-cmd --reload
+
+
+Remove a rich rule
+You need to use the exact rule text you added:
+
+	sudo firewall-cmd --zone=public --remove-rich-rule='rule family="ipv4" source address="192.168.1.10" port port=22 protocol=tcp accept' --permanent
+	sudo firewall-cmd --reload
+
+
+
+8. Additional Useful Commands
+List all active services in the current zone
+
+	sudo firewall-cmd --list-services
+
+List all open ports in current zone
+
+	sudo firewall-cmd --list-ports
+
+Reload firewall (apply permanent changes)
+	
+	sudo firewall-cmd --reload
+
+Get details about a service (like ssh)
+
+	firewall-cmd --info-service=ssh
+
+9. Summary of Command Syntax
+	| Task                    | Command Example                                                                                               |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Add service (runtime)   | `firewall-cmd --zone=public --add-service=http`                                                               |
+| Add service (permanent) | `firewall-cmd --zone=public --add-service=http --permanent`                                                   |
+| Remove port             | `firewall-cmd --zone=public --remove-port=8080/tcp`                                                           |
+| Add port forwarding     | `firewall-cmd --zone=public --add-forward-port=port=22:proto=tcp:toport=2222 --permanent`                     |
+| Enable masquerading     | `firewall-cmd --zone=public --add-masquerade --permanent`                                                     |
+| Add rich rule           | `firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="1.2.3.4" accept' --permanent` |
+
+
+
+
+
+
+
+
+10. Summary
+/etc/firewalld/firewalld.conf is the firewall global config file in rhel8.
+
+ll /usr/lib/firewalld/  (this dir has all script file of firewall).
+
+drwxr-xr-x. 2 root root  224 Apr  5 19:42 helpers
+drwxr-xr-x. 2 root root 4096 Apr  5 19:42 icmptypes
+drwxr-xr-x. 2 root root   20 Apr  5 19:42 ipsets
+drwxr-xr-x. 2 root root 8192 Apr  5 19:42 services
+drwxr-xr-x. 2 root root  203 Apr  5 19:42 zones
+
+
+ll /usr/lib/firewalld/zones/   (available zones in firewall).
+
+-rw-r--r--. 1 root root 299 Feb  4  2021 block.xml
+-rw-r--r--. 1 root root 293 Feb  4  2021 dmz.xml
+-rw-r--r--. 1 root root 291 Feb  4  2021 drop.xml
+-rw-r--r--. 1 root root 304 Feb  4  2021 external.xml
+-rw-r--r--. 1 root root 397 Feb  4  2021 home.xml
+-rw-r--r--. 1 root root 412 Feb  4  2021 internal.xml
+-rw-r--r--. 1 root root 809 Nov 27  2019 libvirt.xml
+-rw-r--r--. 1 root root 729 Aug 18  2021 nm-shared.xml
+-rw-r--r--. 1 root root 343 Feb  4  2021 public.xml
+-rw-r--r--. 1 root root 162 Feb  4  2021 trusted.xml
+-rw-r--r--. 1 root root 339 Feb  4  2021 work.xml
+
+
+firewall-cmd --get-zones (list available zones in firewall).
+
+firewall-cmd --list-all --zone=public (to list everything of public zone you can check any zone).
+
+firewall-cmd --get-default-zone (to get default zone of firewall).
+
+firewall-cmd --get-active-zones (list active zones of firewall).
+
+firewall-cmd --get-services (to list all available services in firewall).
+
+firewall-cmd --list-all (list everything about current zone).
+
+firewall-cmd --list-services (list active services).
+
+firewall-cmd --list-ports (list active ports).
+
+firewall-cmd --permanent --add-service=servivcename (to add services in current zone).
+
+firewall-cmd --permanent --add-port=portname (add port in current zone).
+
+systemctl stop firewalld.service ( to stop firewall).
+
+systemctl disable firewalld.service (to disable firewall).
+
+// systemctl start cockpit.service
+
+
+Port forwarding :
+
+firewall-cmd --zone=public --add-forward-port=port=22:proto=tcp:toport=5000 --permanent
+
+firewall-cmd --reload 
+
+firewall-cmd --zone=public --remove-forward-port=port=22:proto=tcp:toport=5000 --permanent
+
+firewall-cmd --reload 
+
+Masquerading:
+
+firewall-cmd --query-masquerade (to check whether masquerade is enable or not).
+
+firewall-cmd --add-masquerade --permanent
+
+firewall-cmd --zone=public --add-forward-port=port=9090:proto=tcp:toport=9090:toaddr=192.168.63.12 --permanent
+
+Rich Rules:
+
+firewall-cmd --permanent --zone=public --remove-rich-rule 'rule family="ipv4" source address="192.168.63.12" port port=22 protocol=tcp reject'
+
+firewall-cmd --permanent --zone=public --remove-rich-rule 'rule family="ipv4" source address="192.168.63.12" port port=22 protocol=tcp accept'
+
+
+firewall-cmd --get-icmptypes (to get predefined icmp rules).
+
+firewall-cmd --info-icmptype=echo-request (echo req for ipv4 and ipv6).
+
+firewall-cmd --query-icmp-block=echo-request (to check whether icmp req is blocked or not).
+
+firewall-cmd --add-icmp-block=echo-request --permanent (to stop ack req).
+
+firewall-cmd --remove-icmp-block=echo-request --permanent (to start ack req).
+
+firewall-cmd --add-icmp-block-inversion --permanent (to add icmp block inversions).
+
+firewall-cmd --remove-icmp-block-inversion --permanent (to remove icmp block inversions).

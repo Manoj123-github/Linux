@@ -1,0 +1,202 @@
+Here's a **complete command-wise guide** to managing **IP address, subnet, gateway, routing, and DNS** on **Linux** using `ip`, `nmcli`, and file-based configuration. This is useful for Ubuntu, Debian, CentOS, RHEL, and similar distributions.
+
+---
+
+## 🧾 1. **IP Address Management (Temporary)**
+
+### ➕ Add IP address and subnet:
+
+``` 
+sudo ip addr add 192.168.1.100/24 dev eth0
+```
+
+### ➖ Delete IP address:
+
+``` 
+sudo ip addr del 192.168.1.100/24 dev eth0
+```
+
+### 🔍 Show IP addresses:
+
+``` 
+ip addr show
+```
+
+---
+
+## 🌐 2. **Set Default Gateway**
+
+### ➕ Add default gateway:
+
+``` 
+sudo ip route add default via 192.168.1.1
+```
+
+### ➖ Delete default gateway:
+
+``` 
+sudo ip route del default
+```
+
+### 🔍 View routing table:
+
+``` 
+ip route show
+```
+
+---
+
+## 🌍 3. **Routing – Static Route Management**
+
+### ➕ Add static route:
+
+``` 
+sudo ip route add 10.10.10.0/24 via 192.168.1.1 dev eth0
+```
+
+### ➖ Delete static route:
+
+``` 
+sudo ip route del 10.10.10.0/24
+```
+
+---
+
+## 🔄 4. **Bring Interface Up/Down**
+
+``` 
+sudo ip link set dev eth0 up     # Enable interface
+sudo ip link set dev eth0 down   # Disable interface
+```
+
+---
+
+## 🔄 5. **Assign IP Address Permanently**
+
+### 🔧 Ubuntu/Debian – via Netplan:
+
+``` 
+sudo nano /etc/netplan/01-netcfg.yaml
+```
+
+#### Example:
+
+```yaml
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eth0:
+      dhcp4: no
+      addresses: [192.168.1.100/24]
+      gateway4: 192.168.1.1
+      nameservers:
+        addresses: [8.8.8.8, 1.1.1.1]
+```
+
+### 🔃 Apply:
+
+``` 
+sudo netplan apply
+```
+
+---
+
+### 🔧 RHEL/CentOS – via ifcfg file:
+
+``` 
+sudo nano /etc/sysconfig/network-scripts/ifcfg-eth0
+```
+
+#### Example:
+
+```
+DEVICE=eth0
+BOOTPROTO=static
+ONBOOT=yes
+IPADDR=192.168.1.100
+NETMASK=255.255.255.0
+GATEWAY=192.168.1.1
+DNS1=8.8.8.8
+```
+
+### 🔃 Apply:
+
+``` 
+sudo systemctl restart network
+```
+
+---
+
+## 🧭 6. **DNS Configuration**
+
+### 🛠 Modify resolv.conf (temporary):
+
+``` 
+sudo nano /etc/resolv.conf
+```
+
+#### Add:
+
+```
+nameserver 8.8.8.8
+nameserver 1.1.1.1
+```
+
+> ⚠️ Changes will be overwritten unless managed by `netplan`, `NetworkManager`, or `systemd-resolved`.
+
+---
+
+## 📡 7. **DHCP – Get IP Automatically**
+
+### Start DHCP client:
+
+``` 
+sudo dhclient eth0
+```
+
+---
+
+## 🔧 8. **Using `nmcli` (NetworkManager CLI)**
+
+### ➕ Set static IP:
+
+``` 
+sudo nmcli con mod eth0 ipv4.addresses 192.168.1.100/24
+sudo nmcli con mod eth0 ipv4.gateway 192.168.1.1
+sudo nmcli con mod eth0 ipv4.dns "8.8.8.8 1.1.1.1"
+sudo nmcli con mod eth0 ipv4.method manual
+sudo nmcli con up eth0
+```
+
+### ➕ Set DHCP:
+
+```
+sudo nmcli con mod eth0 ipv4.method auto
+sudo nmcli con up eth0
+```
+
+---
+
+## 🧼 9. **Flush IP / Routing Tables (Reset)**
+
+``` 
+sudo ip addr flush dev eth0
+sudo ip route flush dev eth0
+```
+
+---
+
+## ✅ 10. **Verification Commands**
+
+| Task                   | Command                    |
+| ---------------------- | -------------------------- |
+| Show IPs               | `ip addr show`             |
+| Show routes            | `ip route show`            |
+| Show DNS (systemd)     | `systemd-resolve --status` |
+| Show active interfaces | `nmcli dev show`           |
+| Ping test              | `ping 8.8.8.8`             |
+
+---
+
+Would you like a **PDF/Markdown** version of this for your documentation or training use?
