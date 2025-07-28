@@ -1,0 +1,130 @@
+
+🧾 File Permission Basics
+
+| Permission | Symbol | Value |
+| ---------- | ------ | ----- |
+| Read       | `r`    | 4     |
+| Write      | `w`    | 2     |
+| Execute    | `x`    | 1     |
+
+Combined values range from 0 (no permission) to 7 (full permission).
+Permission format: owner (u), group (g), others (o).
+
+📂 Understanding ls -liah Output
+When you run ls -liah, you'll see file details like:
+
+inode file-permissions link-count owner group size date-time name
+
+Breakdown:
+   Inode Number – Unique ID for each file.
+   File Type & Permissions:
+         - Format: type | owner (u) | group (g) | others (o)
+         - Example: -rwxr-xr--
+         - May also include: +, ., or special permission characters (s, t)
+
+File Type Indicators:
+| Symbol | File Type        |
+| ------ | ---------------- |
+| `-`    | Regular file     |
+| `d`    | Directory        |
+| `l`    | Symbolic link    |
+| `p`    | Named pipe       |
+| `b`    | Block device     |
+| `c`    | Character device |
+| `s`    | Socket           |
+
+
+✏️ Changing Permissions
+Using Octal (Numeric) Mode
+chmod 755 file
+  - Owner: rwx (7)
+  - Group: rx (5)
+  - Others: rx (5)
+
+Using Symbolic (Character) Mode
+Add permissions:
+   - u+rw, g+x, o+r
+
+Remove permissions:
+   - u-w, g-x, o-r
+
+Set exact permissions:
+   - u=rwx, g=rw, o=r
+
+
+Assigning multiple at once:
+
+  chmod u+rwx,g+rx,o+r file
+
+
+📦 Recommended Permissions
+| Item   | Command                   |
+| ------ | ------------------------- |
+| File   | `chmod 644 file`          |
+| Dir    | `chmod 755 dir`           |
+| Custom | `chmod u=xr,g=r,o=r file` |
+
+
+
+🧰 umask – Default Permission Mask
+- Controls default permissions when creating files/directories.
+
+Default Math:
+
+| Item      | Default | `umask 022` | Final |
+| --------- | ------- | ----------- | ----- |
+| Files     | 666     | 666 - 022   | 644   |
+| Directory | 777     | 777 - 022   | 755   |
+
+
+Commands:
+  - View in symbolic: umask -S
+  - Set symbolic: umask -S u=rw,g=r,o=r
+  - Set numeric: umask 022
+  - Make permanent:
+      - User-level: add umask to ~/.bashrc
+      - System-wide: edit /etc/login.defs
+
+
+
+🚨 Advanced File Permissions
+
+A. Sticky Bit
+Restricts file deletion to the owner only, even if others have write access to the directory.
+
+| Action          | Command          |
+| --------------- | ---------------- |
+| Enable          | `chmod o+t dir`  |
+| Enable (octal)  | `chmod 1755 dir` |
+| Disable         | `chmod o-t dir`  |
+| Disable (octal) | `chmod 0755 dir` |
+
+Example Output:
+   - With execute: drwxrwxrwt.
+   - Without execute: drwxrwx--T.
+
+B. SetGID (Group ID Bit)
+All files created inside the directory inherit its group.
+
+| Action          | Command           |
+| --------------- | ----------------- |
+| Enable          | `chmod g+s dir/`  |
+| Enable (octal)  | `chmod 2755 dir/` |
+| Disable         | `chmod g-s dir/`  |
+| Disable (octal) | `chmod 0755 dir/` |
+
+Example Output:
+ - With exec: drwxrws---.
+ - Without exec: drw-rwS---.
+
+C. SetUID (User ID Bit)
+A file executes with owner’s privileges, not the user who ran it.
+| Action          | Command           |
+| --------------- | ----------------- |
+| Enable          | `chmod u+s file`  |
+| Enable (octal)  | `chmod 4755 file` |
+| Disable         | `chmod u-s file`  |
+| Disable (octal) | `chmod 0755 file` |
+
+
+
